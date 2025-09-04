@@ -3,8 +3,8 @@
 
 This is a Spring Boot application using Java 21, managed with Maven.
 
-**Task:**  
-Create a CRUD webservice that manages WIFI tariffs.  
+**Task:**
+Create a CRUD webservice that manages WIFI tariffs.
 A tariff is an entity detailing WIFI functionality a customer can buy, such as bandwidth, online duration time, and prices.
 
 ## Initial Setup
@@ -35,7 +35,7 @@ All tools are configured as Maven plugins and can be run with:
 - `mvn checkstyle:check`
 - `mvn pmd:check`
 - `mvn spotbugs:check`
-- `mvn spotless:check` 
+- `mvn spotless:check`
 - `mvn spotless:apply`
 
 ## Testing
@@ -56,6 +56,17 @@ This will execute all unit and integration tests, including validation and edge 
 	- Validation of request data using annotation-based validation
 
 Test cases are located in `src/test/java/com/m3connect/wifiapi/controller/TariffControllerTest.java` and use MockMvc to simulate HTTP requests and verify API responses.
+
+### API Documentation (Swagger UI)
+
+This project includes Swagger UI for easy API exploration and testing.
+
+- After starting the application, open your browser and go to:
+
+	[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+- You can view, try out, and test all available endpoints directly from the web interface.
+
 
 ## Running in Docker
 To build and run in Docker:
