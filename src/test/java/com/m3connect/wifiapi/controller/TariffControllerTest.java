@@ -29,6 +29,11 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @AutoConfigureMockMvc
 class TariffControllerTest {
+  private static final String API_KEY_HEADER = "X-API-KEY";
+
+  @org.springframework.beans.factory.annotation.Value("${api.key}")
+  private String apiKeyValue;
+
   /** MockMvc for simulating HTTP requests. */
   @Autowired private MockMvc mockMvc;
 
@@ -44,6 +49,7 @@ class TariffControllerTest {
     mockMvc
         .perform(
             post("/tariffs")
+                .header(API_KEY_HEADER, apiKeyValue)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(tariff)))
         .andDo(print())
@@ -63,6 +69,7 @@ class TariffControllerTest {
         mockMvc
             .perform(
                 post("/tariffs")
+                    .header(API_KEY_HEADER, apiKeyValue)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(tariff)))
             .andReturn()
@@ -72,7 +79,7 @@ class TariffControllerTest {
 
     // Now get the tariff
     mockMvc
-        .perform(get("/tariffs/" + created.getId()))
+        .perform(get("/tariffs/" + created.getId()).header(API_KEY_HEADER, apiKeyValue))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(created.getId()));
@@ -89,6 +96,7 @@ class TariffControllerTest {
         mockMvc
             .perform(
                 post("/tariffs")
+                    .header(API_KEY_HEADER, apiKeyValue)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(tariff)))
             .andReturn()
@@ -101,9 +109,10 @@ class TariffControllerTest {
     mockMvc
         .perform(
             put("/tariffs/" + created.getId())
+                .header(API_KEY_HEADER, apiKeyValue)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(created)))
-        .andDo(print())
+        // .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Updated Tariff"));
   }
@@ -119,6 +128,7 @@ class TariffControllerTest {
         mockMvc
             .perform(
                 post("/tariffs")
+                    .header(API_KEY_HEADER, apiKeyValue)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(tariff)))
             .andReturn()
@@ -128,8 +138,8 @@ class TariffControllerTest {
 
     // Delete
     mockMvc
-        .perform(delete("/tariffs/" + created.getId()))
-        .andDo(print())
+        .perform(delete("/tariffs/" + created.getId()).header(API_KEY_HEADER, apiKeyValue))
+        // .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(created.getId()));
   }
@@ -141,8 +151,11 @@ class TariffControllerTest {
     String invalidTariffJson = "{\"features\":[\"Fast\"]}";
     mockMvc
         .perform(
-            post("/tariffs").contentType(MediaType.APPLICATION_JSON).content(invalidTariffJson))
-        .andDo(print())
+            post("/tariffs")
+                .header(API_KEY_HEADER, apiKeyValue)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidTariffJson))
+        // .andDo(print())
         .andExpect(status().isOk()); // Controller does not validate, so still 200
   }
 
@@ -154,8 +167,11 @@ class TariffControllerTest {
         "{\"name\":\"Invalid\",\"features\":[\"Fast\"],\"prices\":\"notAMap\"}";
     mockMvc
         .perform(
-            post("/tariffs").contentType(MediaType.APPLICATION_JSON).content(invalidTariffJson))
-        .andDo(print())
+            post("/tariffs")
+                .header(API_KEY_HEADER, apiKeyValue)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidTariffJson))
+        // .andDo(print())
         .andExpect(status().isBadRequest());
   }
 
@@ -163,21 +179,28 @@ class TariffControllerTest {
   void testCreateTariffWithNullBody() throws Exception {
     // Should return 400 Bad Request for null request body
     mockMvc
-        .perform(post("/tariffs").contentType(MediaType.APPLICATION_JSON))
-        .andDo(print())
+        .perform(
+            post("/tariffs")
+                .header(API_KEY_HEADER, apiKeyValue)
+                .contentType(MediaType.APPLICATION_JSON))
+        // .andDo(print())
         .andExpect(status().isBadRequest());
   }
 
   @Test
   void testGetTariffWithNonExistentId() throws Exception {
     // Should return 404 Not Found for non-existent tariff ID
-    mockMvc.perform(get("/tariffs/99999")).andDo(print()).andExpect(status().isNotFound());
+    mockMvc
+        .perform(get("/tariffs/99999").header(API_KEY_HEADER, apiKeyValue)) // .andDo(print())
+        .andExpect(status().isNotFound());
   }
 
   @Test
   void testGetTariffWithInvalidIdFormat() throws Exception {
     // Should return 400 Bad Request for invalid ID format
-    mockMvc.perform(get("/tariffs/invalid")).andDo(print()).andExpect(status().isBadRequest());
+    mockMvc
+        .perform(get("/tariffs/invalid").header(API_KEY_HEADER, apiKeyValue)) // .andDo(print())
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -189,9 +212,10 @@ class TariffControllerTest {
     mockMvc
         .perform(
             put("/tariffs/99999")
+                .header(API_KEY_HEADER, apiKeyValue)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(tariff)))
-        .andDo(print())
+        // .andDo(print())
         .andExpect(status().isNotFound());
   }
 
@@ -202,8 +226,11 @@ class TariffControllerTest {
     String invalidTariffJson = "{\"features\":[\"Fast\"]}";
     mockMvc
         .perform(
-            put("/tariffs/1").contentType(MediaType.APPLICATION_JSON).content(invalidTariffJson))
-        .andDo(print())
+            put("/tariffs/1")
+                .header(API_KEY_HEADER, apiKeyValue)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidTariffJson))
+        // .andDo(print())
         .andExpect(status().isOk()); // Controller does not validate, so still 200
   }
 
@@ -216,9 +243,10 @@ class TariffControllerTest {
     mockMvc
         .perform(
             put("/tariffs/invalid")
+                .header(API_KEY_HEADER, apiKeyValue)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(tariff)))
-        .andDo(print())
+        // .andDo(print())
         .andExpect(status().isBadRequest());
   }
 
@@ -226,20 +254,78 @@ class TariffControllerTest {
   void testUpdateTariffWithNullBody() throws Exception {
     // Should return 400 Bad Request for null request body on update
     mockMvc
-        .perform(put("/tariffs/1").contentType(MediaType.APPLICATION_JSON))
-        .andDo(print())
+        .perform(
+            put("/tariffs/1")
+                .header(API_KEY_HEADER, apiKeyValue)
+                .contentType(MediaType.APPLICATION_JSON))
+        // .andDo(print())
         .andExpect(status().isBadRequest());
   }
 
   @Test
   void testDeleteTariffWithNonExistentId() throws Exception {
     // Should return 404 Not Found when deleting a non-existent tariff
-    mockMvc.perform(delete("/tariffs/99999")).andDo(print()).andExpect(status().isNotFound());
+    mockMvc
+        .perform(delete("/tariffs/99999").header(API_KEY_HEADER, apiKeyValue)) // .andDo(print())
+        .andExpect(status().isNotFound());
   }
 
   @Test
   void testDeleteTariffWithInvalidIdFormat() throws Exception {
     // Should return 400 Bad Request for invalid ID format on delete
-    mockMvc.perform(delete("/tariffs/invalid")).andDo(print()).andExpect(status().isBadRequest());
+    mockMvc
+        .perform(delete("/tariffs/invalid").header(API_KEY_HEADER, apiKeyValue)) // .andDo(print())
+        .andExpect(status().isBadRequest());
+  }
+
+  // --- Invalid API key tests ---
+  @Test
+  void createTariffWithInvalidApiKey() throws Exception {
+    String invalidKey = java.util.UUID.randomUUID().toString();
+    Map<String, Double> prices = new HashMap<>();
+    prices.put("monthly", 19.99);
+    Tariff tariff = new Tariff(null, "Basic Tariff", Arrays.asList("Fast", "Secure"), prices);
+    mockMvc
+        .perform(
+            post("/tariffs")
+                .header(API_KEY_HEADER, invalidKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tariff)))
+        .andDo(print())
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void getTariffWithInvalidApiKey() throws Exception {
+    String invalidKey = java.util.UUID.randomUUID().toString();
+    mockMvc
+        .perform(get("/tariffs/1").header(API_KEY_HEADER, invalidKey))
+        .andDo(print())
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void updateTariffWithInvalidApiKey() throws Exception {
+    String invalidKey = java.util.UUID.randomUUID().toString();
+    Map<String, Double> prices = new HashMap<>();
+    prices.put("monthly", 19.99);
+    Tariff tariff = new Tariff(null, "Basic Tariff", Arrays.asList("Fast", "Secure"), prices);
+    mockMvc
+        .perform(
+            put("/tariffs/1")
+                .header(API_KEY_HEADER, invalidKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tariff)))
+        .andDo(print())
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void deleteTariffWithInvalidApiKey() throws Exception {
+    String invalidKey = java.util.UUID.randomUUID().toString();
+    mockMvc
+        .perform(delete("/tariffs/1").header(API_KEY_HEADER, invalidKey))
+        .andDo(print())
+        .andExpect(status().isUnauthorized());
   }
 }
