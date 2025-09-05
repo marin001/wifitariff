@@ -30,6 +30,12 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
       return;
     }
 
+    //add dummy endpoints
+    if (path.startsWith("/dummy-list-all-tariffs") || path.startsWith("/dummy-remote-tariffs")) {
+        filterChain.doFilter(request, response);
+        return;
+    }
+
     String apiKey = request.getHeader(API_KEY_HEADER);
     if (expectedApiKey != null && expectedApiKey.equals(apiKey)) {
       filterChain.doFilter(request, response);

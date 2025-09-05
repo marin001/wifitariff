@@ -1,12 +1,3 @@
-/*
- * Tariff.java
- *
- * This class represents a WiFi tariff entity for the wifiapi project.
- *
- * Note: All mutable fields are protected by defensive copying
- * in the constructor, setters, and getters to avoid exposing internal representation (EI_EXPOSE_REP).
- */
-
 package com.m3connect.wifiapi.model;
 
 import java.util.List;
@@ -18,6 +9,7 @@ public class Tariff {
   private String name;
   private List<String> features;
   private Map<String, Double> prices;
+  private Long remoteId; // Optional remote ID
 
   /** Default constructor for Tariff. */
   public Tariff() {}
@@ -31,11 +23,30 @@ public class Tariff {
    * @param prices the map of prices
    */
   public Tariff(Long id, String name, List<String> features, Map<String, Double> prices) {
+    this(id, name, features, prices, null);
+  }
+
+  /**
+   * Overloaded constructor to support optional remoteId.
+   */
+  public Tariff(Long id, String name, List<String> features, Map<String, Double> prices, Long remoteId) {
     this.id = id;
     this.name = name;
     this.features = features == null ? null : new java.util.ArrayList<>(features);
     this.prices = prices == null ? null : new java.util.HashMap<>(prices);
+    this.remoteId = remoteId;
   }
+
+  /** Gets the remoteId (optional). */
+  public Long getRemoteId() {
+    return remoteId;
+  }
+
+  /** Sets the remoteId (optional). */
+  public void setRemoteId(Long remoteId) {
+    this.remoteId = remoteId;
+  }
+
 
   /** Gets the tariff id. */
   public Long getId() {

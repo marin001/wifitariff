@@ -9,8 +9,7 @@ package com.m3connect.wifiapi.controller;
 
 import com.m3connect.wifiapi.model.Tariff;
 import jakarta.validation.Valid;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import com.m3connect.wifiapi.store.TariffStore;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +22,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/tariffs")
 @Validated
 public class TariffController {
-  /** In-memory store for tariffs. */
-  private final Map<Long, Tariff> tariffStore = new HashMap<>();
+  private final TariffStore tariffStore;
 
-  /** ID generator for tariffs. */
-  private final AtomicLong idGenerator = new AtomicLong(1);
+  public TariffController(TariffStore tariffStore) {
+    this.tariffStore = tariffStore;
+  }
 
   /**
    * Creates a new tariff.
@@ -37,10 +36,10 @@ public class TariffController {
    */
   @PostMapping
   public ResponseEntity<Tariff> createTariff(@Valid @RequestBody Tariff tariff) {
-    long id = idGenerator.getAndIncrement();
-    tariff.setId(id);
-    tariffStore.put(id, tariff);
-    return ResponseEntity.ok(tariff);
+  long id = tariffStore.getNextId();
+  tariff.setId(id);
+  tariffStore.getTariffMap().put(id, tariff);
+  return ResponseEntity.ok(tariff);
   }
 
   /**
@@ -51,7 +50,7 @@ public class TariffController {
    */
   @GetMapping("/{id}")
   public ResponseEntity<Tariff> getTariff(@PathVariable Long id) {
-    Tariff tariff = tariffStore.get(id);
+  Tariff tariff = tariffStore.getTariffMap().get(id);
     if (tariff == null) {
       return ResponseEntity.notFound().build();
     }
@@ -68,11 +67,11 @@ public class TariffController {
   @PutMapping("/{id}")
   public ResponseEntity<Tariff> updateTariff(
       @PathVariable Long id, @Valid @RequestBody Tariff tariff) {
-    if (!tariffStore.containsKey(id)) {
+    if (!tariffStore.getTariffMap().containsKey(id)) {
       return ResponseEntity.notFound().build();
     }
     tariff.setId(id);
-    tariffStore.put(id, tariff);
+    tariffStore.getTariffMap().put(id, tariff);
     return ResponseEntity.ok(tariff);
   }
 
@@ -84,7 +83,7 @@ public class TariffController {
    */
   @DeleteMapping("/{id}")
   public ResponseEntity<Tariff> deleteTariff(@PathVariable Long id) {
-    Tariff removed = tariffStore.remove(id);
+  Tariff removed = tariffStore.getTariffMap().remove(id);
     if (removed == null) {
       return ResponseEntity.notFound().build();
     }

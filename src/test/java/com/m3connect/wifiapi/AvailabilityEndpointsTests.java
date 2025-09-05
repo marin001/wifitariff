@@ -26,4 +26,16 @@ class AvailabilityEndpointsTests {
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void dummyListAllTariffsIsAvailable() throws Exception {
+        mockMvc.perform(get("/dummy-list-all-tariffs"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void dummyRemoteTariffsIsAvailable() throws Exception {
+        mockMvc.perform(get("/dummy-remote-tariffs"))
+                .andExpect(status().isOk());
+    }
 }
